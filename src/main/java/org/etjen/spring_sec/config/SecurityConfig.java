@@ -8,6 +8,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -35,12 +39,31 @@ public class SecurityConfig {
         //not a good idea to disable csrf protection if you are having session that lasts
         httpSecurity.csrf(customizer -> customizer.disable())
                     .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                    .formLogin(Customizer.withDefaults())
+                    //.formLogin(Customizer.withDefaults())
                     .httpBasic(Customizer.withDefaults());
         //no session if it is stateless, basically you have to send username and password every time you make a request
-        //so maybe good for API but bad for frontend
-        //httpSecurity.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        //so maybe good for API if it needs crazy good security, but performance could be a problem then, idk about frontend
+        httpSecurity.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return httpSecurity.build();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService(){
+        UserDetails userDetails = User
+                                    .withDefaultPasswordEncoder()
+                                    .username("etjen")
+                                    .password("0000")
+                                    .roles("ADMIN")
+                                    .build();
+
+        UserDetails userDetails2 = User
+                                    .withDefaultPasswordEncoder()
+                                    .username("navin")
+                                    .password("0000")
+                                    .roles("USER")
+                                    .build();
+
+        return new InMemoryUserDetailsManager(userDetails, userDetails2);
     }
 }
