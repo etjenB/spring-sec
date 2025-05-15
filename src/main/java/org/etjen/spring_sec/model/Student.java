@@ -1,4 +1,4 @@
-package org.etjen.spring_sec;
+package org.etjen.spring_sec.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
